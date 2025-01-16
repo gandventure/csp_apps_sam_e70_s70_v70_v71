@@ -54,15 +54,15 @@
 uint8_t Mcan1MessageRAM[MCAN1_MESSAGE_RAM_CONFIG_SIZE] __attribute__((aligned (32)))__attribute__((space(data), section (".ram_nocache")));
 
 /* Standard identifier id[28:18]*/
-#define WRITE_ID(id) (id << 18)
+#define WRITE_ID(id) (id << 18) //표준 -> 확장 CAN ID로 변환
 #define READ_ID(id)  (id >> 18)
 
 static uint32_t status = 0;
 static uint8_t loop_count = 0;
 static uint8_t user_input = 0;
 
-static uint8_t txFiFo[MCAN1_TX_FIFO_BUFFER_SIZE];
-static uint8_t rxFiFo0[MCAN1_RX_FIFO0_SIZE];
+static uint8_t txFiFo[MCAN1_TX_FIFO_BUFFER_SIZE]; //송신 버퍼
+static uint8_t rxFiFo0[MCAN1_RX_FIFO0_SIZE];      //수신 버퍼
 
 // *****************************************************************************
 // *****************************************************************************
@@ -79,26 +79,29 @@ void print_menu(void)
 
 /* Print Rx Message */
 static void print_message(uint8_t numberOfMessage, MCAN_RX_BUFFER *rxBuf, uint8_t rxBufLen)
-{
-    uint8_t length = 0;
-    uint8_t msgLength = 0;
-    uint32_t id = 0;
+//Rx FIFO0에서 메시지를 읽어오고 이를 콘솔에 출력한다
+//rxBuf: MCAN 메시지가 저장된 수신 버퍼. 메시지 ID, 데이터 길이, 데이터 등이 포함되어 있다.
+//rxBufLen: 수신 버퍼에서 다음 메시지로 이동하기 위해 사용되는 버퍼의 길이
+{ 
+    uint8_t length = 0; //현재 처리 중인 메시지의 길이를 추적
+    uint8_t msgLength = 0; //수신된 메시지의 데이터 길이
+    uint32_t id = 0;     //메시지의 ID
 
-    for (uint8_t count = 0; count < numberOfMessage; count++)
+    for (uint8_t count = 0; count < numberOfMessage; count++) //수신된 메시지의 개수만큼 루프를 돌며 각 메시지를 처리
     {
         /* Print message to Console */
         printf(" Rx FIFO0 : New Message Received\r\n");
-        id = rxBuf->xtd ? rxBuf->id : READ_ID(rxBuf->id);
+        id = rxBuf->xtd ? rxBuf->id : READ_ID(rxBuf->id); // 확장/표준에 따라 ID 추출
         msgLength = rxBuf->dlc;
-        length = msgLength;
+        length = msgLength;   //DLC(데이터의 길이)를 나타냄
         printf(" Message - ID : 0x%x Length : 0x%x ", (unsigned int)id, (unsigned int)msgLength);
         printf("Message : ");
         while(length)
         {
-            printf("0x%x ", rxBuf->data[msgLength - length--]);
+            printf("0x%x ", rxBuf->data[msgLength - length--]); //배열에서 데이터 바이트를 하나씩 출력하며 데이터 길이를 감소시킴
         }
         printf("\r\n");
-        rxBuf += rxBufLen;
+        rxBuf += rxBufLen; //수신 버퍼 포인터를 다음 메시지로 이동시킴킴
     }
 }
 
@@ -108,6 +111,9 @@ static void print_message(uint8_t numberOfMessage, MCAN_RX_BUFFER *rxBuf, uint8_
 // *****************************************************************************
 // *****************************************************************************
 
+
+// MCAN 송수신 기능 테스트
+// 시스템 초기화 / 사용자 입력 처리 / 수신된 CAN 메시지 처리 / CAN 메시지 전송
 int main ( void )
 {
     MCAN_TX_BUFFER *txBuffer = NULL;
