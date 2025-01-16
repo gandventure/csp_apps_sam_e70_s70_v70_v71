@@ -49,20 +49,22 @@
 #include <stddef.h>                     // Defines NULL
 #include <stdbool.h>                    // Defines true
 #include <stdlib.h>                     // Defines EXIT_FAILURE
-#include "definitions.h"                // SYS function prototypes
+#include "definitions.h"                // SYS function prototypes //MCAN 및 시스템 련 함수/구조체 등 정의
 
 uint8_t Mcan1MessageRAM[MCAN1_MESSAGE_RAM_CONFIG_SIZE] __attribute__((aligned (32)))__attribute__((space(data), section (".ram_nocache")));
+// MCAN 메시지를 저장하기 위한 메모리 공간을 정의.
+// .ram_nocache: 이 메모리 공간이 캐시되지 않도록 설정하여 MCAN 하드웨어와 직접적으로 데이터를 주고받도록.
 
-/* Standard identifier id[28:18]*/
-#define WRITE_ID(id) (id << 18)
-#define READ_ID(id)  (id >> 18)
+/* Standard identifier id[28:18]*/  
+#define WRITE_ID(id) (id << 18) //표준->확장 CAN ID
+#define READ_ID(id)  (id >> 18) //반대로
 
-static uint32_t status = 0;
-static uint8_t loop_count = 0;
-static uint8_t user_input = 0;
+static uint32_t status = 0;     //MCAN 상태 정보를 저장
+static uint8_t loop_count = 0;  //송신 데이터를 초기화할때 사용?
+static uint8_t user_input = 0;  //사용자의 입력을 저장
 
-static uint8_t txFiFo[MCAN1_TX_FIFO_BUFFER_SIZE];
-static uint8_t rxFiFo0[MCAN1_RX_FIFO0_SIZE];
+static uint8_t txFiFo[MCAN1_TX_FIFO_BUFFER_SIZE]; //송신 버퍼
+static uint8_t rxFiFo0[MCAN1_RX_FIFO0_SIZE];      //수신 버퍼
 
 // *****************************************************************************
 // *****************************************************************************
