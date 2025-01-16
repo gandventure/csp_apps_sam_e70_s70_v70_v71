@@ -46,10 +46,10 @@
 // *****************************************************************************
 // *****************************************************************************
 
-#include <stddef.h>                     // Defines NULL
-#include <stdbool.h>                    // Defines true
+#include <stddef.h>                     // Defines NULL                  
+#include <stdbool.h>                    // Defines true                  
 #include <stdlib.h>                     // Defines EXIT_FAILURE
-#include "definitions.h"                // SYS function prototypes
+#include "definitions.h"                // SYS function prototypes //MCAN 및 시스템 관련 함수/구조체 정의
 
 uint8_t Mcan1MessageRAM[MCAN1_MESSAGE_RAM_CONFIG_SIZE] __attribute__((aligned (32)))__attribute__((space(data), section (".ram_nocache")));
 
